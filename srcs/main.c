@@ -6,7 +6,7 @@
 /*   By: vifonne <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/10/10 10:17:48 by vifonne           #+#    #+#             */
-/*   Updated: 2019/10/10 17:22:02 by vifonne          ###   ########.fr       */
+/*   Updated: 2019/10/10 21:20:01 by vifonne          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,10 +15,14 @@
 
 int		main(int ac, char **av)
 {
+	t_msg	*msg;
+
+	if (!(msg = (t_msg *)ft_memalloc(sizeof(t_msg))))
+		return (0);
 	if (ac > 1)
 	{
-		print_bits((uint8_t *)av[1], ft_strlen(av[1]));
-		md5_preparation((uint8_t *)av[1]);
+		msg->content = (uint8_t *)av[1];
+		md5_preparation(msg);
 	}
 	return (0);
 }

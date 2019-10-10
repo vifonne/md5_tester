@@ -6,7 +6,7 @@
 /*   By: vifonne <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/10/10 10:52:55 by vifonne           #+#    #+#             */
-/*   Updated: 2019/10/10 17:32:33 by vifonne          ###   ########.fr       */
+/*   Updated: 2019/10/10 22:03:30 by vifonne          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,61 +31,65 @@ uint32_t		g_sintab[64] = {0xd76aa478, 0xe8c7b756, 0x242070db, 0xc1bdceee,
 				0x6fa87e4f, 0xfe2ce6e0, 0xa3014314, 0x4e0811a1,
 				0xf7537e82, 0xbd3af235, 0x2ad7d2bb, 0xeb86d391};
 
-size_t			md5_padding_calc(size_t msg_length)
+size_t	md5_padding_calc(t_msg *msg)
 {
 	size_t	to_be_add;
 
 	to_be_add = 0;
-	if (msg_length > 56 && msg_length < 64)
+	if (msg->length > 56 && msg->length < 64)
 	{
-		msg_length += (64 - msg_length);
-		to_be_add = (64 - msg_length);
+		msg->length += (64 - msg->length);
+		to_be_add = (64 - msg->length);
 		printf("SpecialCase: %li\n", to_be_add);
 	}
-	if (msg_length < 64)
-		to_be_add += (448 - (msg_length * 8)) / 8;
+	if (msg->length < 64)
+		to_be_add += (448 - (msg->length * 8)) / 8;
 	else
-		to_be_add += (((msg_length * 8) + (448 - ((msg_length * 8) % 512))) / 8) - msg_length;
+		to_be_add += (((msg->length * 8)
+			+ (448 - ((msg->length * 8) % 512))) / 8) - msg->length;
 	return (to_be_add);
 }
 
-uint8_t			*md5_append_padding(uint8_t *msg)
+int		md5_append_padding(t_msg *msg)
 {
 	size_t	to_be_add;
-	size_t	msg_length;
-	uint8_t	*msg_padded;
 	uint8_t	*tmp;
 
-	msg_length =  ft_strlen((char *)msg);
-	if (!(tmp = (uint8_t *)malloc(msg_length + 1)))
-		return (NULL);
-	ft_memcpy(tmp, msg, msg_length);
-	*(tmp + msg_length) = 1 << 7;
-	msg_length += 1;
-	to_be_add = padding_calc(msg_length);
-	if (!(msg_padded = (uint8_t *)ft_memalloc(msg_length + to_be_add)))
-		return (NULL);
-	msg_length += to_be_add;
-	ft_memcpy(msg_padded, tmp, msg_length - to_be_add);
-	print_bits(msg_padded, msg_length);
-	return (msg_padded);
+	msg->length = ft_strlen((char *)msg->content);
+	msg->content_length = ft_strlen((char *)msg->content);
+	if (!(tmp = (uint8_t *)malloc(msg->length + 1)))
+		return (0);
+	ft_memcpy(tmp, msg->content, msg->length);
+	*(tmp + msg->length) = 1 << 7;
+	msg->length += 1;
+	to_be_add = md5_padding_calc(msg);
+	if (!(msg->content_prepared = (uint8_t *)ft_memalloc(msg->length + to_be_add)))
+		return (0);
+	msg->length += to_be_add;
+	ft_memcpy(msg->content_prepared, tmp, msg->length - to_be_add);
+	free(tmp);
+	print_bits(msg->content, msg->content_length);
+	return (1);
 }
 
-uint8_t			*md5_append_length(uint8_t *msg, size_t append_length, size_t msg_length)
-{
-	uint8_t	*msg_with_length;
-
-	if (!(msg_with_length = (uint8_t *)ft_memalloc(msg_length + 64)))
-		return (NULL);
-	ft_memcpy(msg_with_length, msg, msg_length);
-	*((size_t)(msg_with_length + msg_length)) = append_length;
-	return (msg_with_length);
-}
-
-uint8_t			*md5_preparation(uint8_t *msg)
+int		md5_append_length(t_msg *msg)
 {
 	uint8_t	*tmp;
-	tmp = md5_append_padding(msg);
-	md5_append_length(tmp, ft_strlen((char *)msg), );
-	return (NULL);
+
+	if (!(tmp = (uint8_t *)ft_memalloc(msg->length + 2)))
+		return (0);
+	ft_memcpy(tmp, msg->content_prepared, msg->length);
+	printf("%li\n", msg->length);
+	*(tmp + msg->length) = (unsigned int)msg->content_length;
+	free(msg->content_prepared);
+	msg->content_prepared = tmp;
+	print_bits(msg->content_prepared, msg->length + 2);
+	return (1);
+}
+
+int		md5_preparation(t_msg *msg)
+{
+	md5_append_padding(msg);
+	md5_append_length(msg);
+	return (1);
 }
