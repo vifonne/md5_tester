@@ -5,53 +5,55 @@
 #                                                     +:+ +:+         +:+      #
 #    By: vifonne <marvin@42.fr>                     +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
-#    Created: 2019/01/05 18:03:13 by vifonne           #+#    #+#              #
-#    Updated: 2019/10/10 11:49:22 by vifonne          ###   ########.fr        #
+#    Created: 2019/10/11 10:20:14 by vifonne           #+#    #+#              #
+#    Updated: 2019/10/11 10:23:17 by vifonne          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-SRCS		=		main.c		\
-					ft_md5.c	\
-					utils.c
-SRCS_DIR	=		$(addprefix srcs/, $(SRCS))
-LIBFT		=		libft/
-OBJ			=		$(SRCS_DIR:.c=.o)
-CC			=		gcc -Wall -Wextra -Werror
-HDR			=		-I $(LIBFT) -I .
-NAME		=		ft_ssl
-.PHONY		=		all $(NAME) $(OBJ) clean fclean re
-UNDER		=		$'\x1b[4m$'
-RED			=		$'\x1b[31m$'
-GREEN		=		$'\x1b[32m$'
-YELLOW		=		$'\x1b[33m$'
-WHITE		=		$'\x1b[37m$'
-END			=		$'\x1b[0m$'
+NAME		=	ft_ssl
 
-all:	$(NAME)
+SRC_DIR		=	srcs
+SRC			=	main.c		\
+				ft_md5.c	\
+				utils.c
+OBJ_DIR	=	.obj
+OBJ		=	$(SRC:.c=.o)
+DEP		=	$(OBJ:.o=.d)
+INC_DIR	=	includes
 
-$(NAME): $(OBJ)
-	@echo "\n$(UNDER)Compiling libft :$(END)\t\t$(YELLOW)$(CC)$(WHITE)\n"
-	@/bin/echo -n "0% ["
-	@make -C libft/
-	@echo "] 100%"
-	@echo "\n$(UNDER)Compiling $(NAME) :$(END)\t\t$(YELLOW)$(CC)$(WHITE)\n"
-	$(CC) $(OBJ) -o $(NAME) $(HDR) -L $(LIBFT) -lft
+CC		=	gcc
+CFLAGS	=	-Wall -Wextra -Werror -I ./libft -I $(INC_DIR)
 
-%.o: %.c
-	$(CC) $(HDR) -c $< -o $@
+LIBFT	=	./libft/libft.a
+
+all: $(NAME)
+
+$(NAME): $(LIBFT) $(addprefix $(OBJ_DIR)/,$(OBJ))
+	$(CC) -o $@ $^
+
+$(LIBFT):
+	@$(MAKE) -C ./libft
+
+-include $(addprefix $(OBJ_DIR)/,$(DEP))
+
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -MMD -o $@ -c $<
+
+$(OBJ_DIR):
+	@/bin/mkdir $@
+	@/bin/mkdir $@/op
+	@/bin/mkdir $@/visual
 
 clean:
-	@echo "$(UNDER)Cleaning project :$(END)$(RED)"
-	rm -rf $(OBJ)
-	@echo "$(GREEN)[OK]$(RED)\n"
-	make clean -C $(LIBFT)
-	@echo "$(GREEN)[OK]$(WHITE)"
+	@echo "Cleaning $(NAME)"
+	@$(MAKE) -C ./libft clean
+	@/bin/rm -rf $(OBJ_DIR)
 
-fclean:	clean
-	@echo "\n$(UNDER)Full cleaning project :$(END)$(RED)"
-	rm -f $(NAME)
-	@echo "$(GREEN)[OK]$(RED)\n"
-	make fclean -C $(LIBFT)
-	@echo "$(GREEN)[OK]$(WHITE)"
+fclean: clean
+	@echo "Full clean $(NAME)"
+	@$(MAKE) -C ./libft fclean
+	@/bin/rm -f $(NAME)
 
-re:	fclean all
+re: fclean all
+
+.PHONY: all clean fclean re
