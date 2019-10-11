@@ -6,7 +6,7 @@
 #    By: vifonne <marvin@42.fr>                     +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/10/11 10:20:14 by vifonne           #+#    #+#              #
-#    Updated: 2019/10/11 10:23:17 by vifonne          ###   ########.fr        #
+#    Updated: 2019/10/11 11:56:33 by vifonne          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -22,7 +22,7 @@ DEP		=	$(OBJ:.o=.d)
 INC_DIR	=	includes
 
 CC		=	gcc
-CFLAGS	=	-Wall -Wextra -Werror -I ./libft -I $(INC_DIR)
+CFLAGS	=	-I ./libft -I $(INC_DIR)
 
 LIBFT	=	./libft/libft.a
 
@@ -32,7 +32,7 @@ $(NAME): $(LIBFT) $(addprefix $(OBJ_DIR)/,$(OBJ))
 	$(CC) -o $@ $^
 
 $(LIBFT):
-	@$(MAKE) -C ./libft
+	$(MAKE) -C ./libft
 
 -include $(addprefix $(OBJ_DIR)/,$(DEP))
 

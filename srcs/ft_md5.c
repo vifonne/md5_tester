@@ -6,7 +6,7 @@
 /*   By: vifonne <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/10/10 10:52:55 by vifonne           #+#    #+#             */
-/*   Updated: 2019/10/10 22:03:30 by vifonne          ###   ########.fr       */
+/*   Updated: 2019/10/11 11:58:39 by vifonne          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,11 @@ uint32_t		g_sintab[64] = {0xd76aa478, 0xe8c7b756, 0x242070db, 0xc1bdceee,
 				0x655b59c3, 0x8f0ccc92, 0xffeff47d, 0x85845dd1,
 				0x6fa87e4f, 0xfe2ce6e0, 0xa3014314, 0x4e0811a1,
 				0xf7537e82, 0xbd3af235, 0x2ad7d2bb, 0xeb86d391};
+
+uint32_t		g_tab[64] = {7, 12, 17, 22, 7, 12, 17, 22, 7, 12, 17, 22, 7, 12, 17, 22,
+				5, 9, 14, 20, 5, 9, 14, 20, 5, 9, 14, 20, 5, 9, 14, 20, 4,
+				11, 16, 23, 4, 11, 16, 23, 4, 11, 16, 23, 4, 11, 16, 23, 6,
+				10, 15, 21, 6, 10, 15, 21, 6, 10, 15, 21, 6, 10, 15, 21};
 
 size_t	md5_padding_calc(t_msg *msg)
 {
@@ -68,7 +73,6 @@ int		md5_append_padding(t_msg *msg)
 	msg->length += to_be_add;
 	ft_memcpy(msg->content_prepared, tmp, msg->length - to_be_add);
 	free(tmp);
-	print_bits(msg->content, msg->content_length);
 	return (1);
 }
 
@@ -76,14 +80,15 @@ int		md5_append_length(t_msg *msg)
 {
 	uint8_t	*tmp;
 
-	if (!(tmp = (uint8_t *)ft_memalloc(msg->length + 2)))
+	if (!(tmp = (uint8_t *)ft_memalloc(msg->length + sizeof(uint64_t))))
 		return (0);
 	ft_memcpy(tmp, msg->content_prepared, msg->length);
-	printf("%li\n", msg->length);
-	*(tmp + msg->length) = (unsigned int)msg->content_length;
+	*(uint64_t *)(tmp + msg->length) = (uint64_t)msg->content_length;
 	free(msg->content_prepared);
 	msg->content_prepared = tmp;
-	print_bits(msg->content_prepared, msg->length + 2);
+	print_bits(msg->content, msg->content_length);
+	print_bits(msg->content_prepared, msg->length + sizeof(uint64_t));
+	msg->length += sizeof(uint64_t);
 	return (1);
 }
 
@@ -91,5 +96,64 @@ int		md5_preparation(t_msg *msg)
 {
 	md5_append_padding(msg);
 	md5_append_length(msg);
+	md5_loop(msg);
+	return (1);
+}
+
+int		md5_loop(t_msg *msg)
+{
+	size_t		block_index;
+	size_t		idx;
+	uint64_t	tmp;
+	t_hash		hash;
+
+	block_index = 0;
+	msg->md_buffer.h0 = 0x67452301;
+	msg->md_buffer.h1 = 0xEFCDAB89;
+	msg->md_buffer.h2 = 0x98BADCFE;
+	msg->md_buffer.h3 = 0x10325476;
+	while (block_index < msg->length)
+	{
+		hash.a = msg->md_buffer.h0;
+		hash.b = msg->md_buffer.h1;
+		hash.c = msg->md_buffer.h2;
+		hash.d = msg->md_buffer.h3;
+		idx = 0;
+		while (idx < 64)
+		{
+			if (idx < 16)
+			{
+				hash.f = (hash.b & hash.c) | ((~hash.b) & hash.d);
+				hash.g = idx;
+			}
+			else if (idx > 15 && idx < 32)
+			{
+				hash.f = (hash.d & hash.b) | ((~hash.d) & hash.c);
+				hash.g = (5 * idx + 1) % 16;
+			}
+			else if (idx > 31 && idx < 48)
+			{
+				hash.f = hash.b ^ hash.c ^ hash.d;
+				hash.g = (3 * idx + 5) % 16;
+			}
+			else if (idx > 47 && idx < 64)
+			{
+				hash.f = hash.c ^ (hash.b | (~hash.d));
+				hash.g = (7 * idx) % 16;
+			}
+			tmp = hash.d;
+			hash.d = hash.c;
+			hash.c = hash.b;
+			hash.b = ((hash.a + hash.f + g_sintab[idx] + *(msg->content_prepared + block_index + hash.g)) << g_tab[idx]) + hash.b;
+			hash.a = tmp;
+			idx++;
+		}
+		msg->md_buffer.h0 += hash.a;
+		msg->md_buffer.h1 += hash.b;
+		msg->md_buffer.h2 += hash.c;
+		msg->md_buffer.h3 += hash.d;
+		block_index += 64;
+	}
+	printf("%x%x%x%x\n", msg->md_buffer.h0, msg->md_buffer.h1, msg->md_buffer.h2, msg->md_buffer.h3); 
 	return (1);
 }
