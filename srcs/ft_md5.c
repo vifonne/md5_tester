@@ -6,7 +6,7 @@
 /*   By: vifonne <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/10/10 10:52:55 by vifonne           #+#    #+#             */
-/*   Updated: 2019/10/11 11:58:39 by vifonne          ###   ########.fr       */
+/*   Updated: 2019/10/12 19:55:10 by vifonne          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -155,5 +155,9 @@ int		md5_loop(t_msg *msg)
 		block_index += 64;
 	}
 	printf("%x%x%x%x\n", msg->md_buffer.h0, msg->md_buffer.h1, msg->md_buffer.h2, msg->md_buffer.h3); 
+	// Changement de fonction de print, utiliser ca pour print 4 bits par 4 bits
+	// byte b = 0xAB;
+	// var low = b & 0x0F;
+	// var high = b >> 4;
 	return (1);
 }
