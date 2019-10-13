@@ -6,23 +6,45 @@
 /*   By: vifonne <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/10/10 10:17:48 by vifonne           #+#    #+#             */
-/*   Updated: 2019/10/10 21:20:01 by vifonne          ###   ########.fr       */
+/*   Updated: 2019/10/13 16:23:42 by vifonne          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "libft.h"
 #include "ft_ssl_md5.h"
+
+char	*g_algo_name_tab[3] = {"md5", "sha256", 0};
+int		(*g_algo_fct_tab[2]) (char **av) = {&md5, &sha256};
+
+int		algo_finder(char *algo_name)
+{
+	size_t	idx;
+
+	idx = 0;
+	while (g_algo_name_tab[idx] != NULL)
+	{
+		if (ft_strequ(algo_name, g_algo_name_tab[idx]) == 1)
+			return (idx);
+		idx++;
+	}
+	return (-1);
+}
 
 int		main(int ac, char **av)
 {
-	t_msg	*msg;
+	int	algo_choosen;
 
-	if (!(msg = (t_msg *)ft_memalloc(sizeof(t_msg))))
-		return (0);
-	if (ac > 1)
+	if (ac > 2)
 	{
-		msg->content = (uint8_t *)av[1];
-		md5_preparation(msg);
+		algo_choosen = algo_finder(av[1]);
+		if (algo_choosen == -1)
+		{
+			ft_error(-1);
+		}
+		else
+		{
+			if (!g_algo_fct_tab[algo_choosen](av + 2))
+				ft_error(-1);
+		}
 	}
 	return (0);
 }

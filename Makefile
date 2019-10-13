@@ -6,25 +6,28 @@
 #    By: vifonne <marvin@42.fr>                     +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/10/11 10:20:14 by vifonne           #+#    #+#              #
-#    Updated: 2019/10/11 11:56:33 by vifonne          ###   ########.fr        #
+#    Updated: 2019/10/13 16:08:28 by vifonne          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME		=	ft_ssl
 
 SRC_DIR		=	srcs
-SRC			=	main.c		\
-				ft_md5.c	\
+SRC			=	main.c				\
+				md5.c				\
+				md5_utils.c			\
+				error.c				\
+				sha256.c			\
 				utils.c
-OBJ_DIR	=	.obj
-OBJ		=	$(SRC:.c=.o)
-DEP		=	$(OBJ:.o=.d)
-INC_DIR	=	includes
+OBJ_DIR		=	.obj
+OBJ			=	$(SRC:.c=.o)
+DEP			=	$(OBJ:.o=.d)
+INC_DIR		=	includes
 
-CC		=	gcc
-CFLAGS	=	-I ./libft -I $(INC_DIR)
+CC			=	gcc -fsanitize=address
+CFLAGS		=	-Wall -Wextra -Werror -I ./libft -I $(INC_DIR)
 
-LIBFT	=	./libft/libft.a
+LIBFT		=	./libft/libft.a
 
 all: $(NAME)
 

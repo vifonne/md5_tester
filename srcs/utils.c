@@ -6,11 +6,27 @@
 /*   By: vifonne <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/10/10 11:48:45 by vifonne           #+#    #+#             */
-/*   Updated: 2019/10/11 10:38:30 by vifonne          ###   ########.fr       */
+/*   Updated: 2019/10/13 13:39:03 by vifonne          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_ssl_md5.h"
+#include <stdio.h>
+
+void	print_byte(t_msg *msg)
+{
+	uint8_t	to_print[16];
+	int		idx;
+
+	idx = 0;
+	ft_memcpy(to_print, msg->md_buffer.h, 16);
+	while (idx < 16)
+	{
+		printf("%02x", to_print[idx]);
+		idx++;
+	}
+	printf("\n");
+}
 
 void	print_bits(uint8_t *msg, size_t length)
 {
