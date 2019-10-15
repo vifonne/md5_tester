@@ -6,7 +6,7 @@
 /*   By: vifonne <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/10/10 10:53:12 by vifonne           #+#    #+#             */
-/*   Updated: 2019/10/13 16:04:49 by vifonne          ###   ########.fr       */
+/*   Updated: 2019/10/15 19:59:32 by vifonne          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,10 +42,20 @@ typedef struct	s_msg
 	t_init		md_buffer;
 }				t_msg;
 
+typedef struct	s_options
+{
+	int			p;
+	int			q;
+	int			r;
+	int			s;
+	int			start_ac;
+}				t_options;
+
 /*
 **	PARSING
 */
 int				algo_finder(char *algo_name);
+t_options		parse_options(int ac, char **av);
 
 /*
 **	MD5
