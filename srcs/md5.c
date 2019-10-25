@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_md5.c                                           :+:      :+:    :+:   */
+/*   md5.c                                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: vifonne <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/10/10 10:52:55 by vifonne           #+#    #+#             */
-/*   Updated: 2019/10/13 16:23:40 by vifonne          ###   ########.fr       */
+/*   Updated: 2019/10/25 21:36:37 by vifonne          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -94,7 +94,7 @@ void		md5_loop(t_msg *msg, t_hash *hash, size_t block_index)
 	}
 }
 
-int			md5(char **av)
+int			md5(uint8_t *content, t_options opt)
 {
 	size_t	block_index;
 	t_hash	hash;
@@ -102,7 +102,8 @@ int			md5(char **av)
 
 	if (!(msg = (t_msg *)ft_memalloc(sizeof(t_msg))))
 		return (0);
-	msg->content = (uint8_t *)av[0];
+	msg->content = content;
+	msg->algo_name = "MD5";
 	if (!md5_preparation(msg))
 		return (0);
 	block_index = 0;
@@ -114,6 +115,6 @@ int			md5(char **av)
 		md5_add_hash(hash, msg);
 		block_index += 64;
 	}
-	print_byte(msg);
+	print_output(msg, opt);
 	return (1);
 }
