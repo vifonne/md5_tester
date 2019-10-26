@@ -6,7 +6,7 @@
 /*   By: vifonne <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/10/10 10:53:12 by vifonne           #+#    #+#             */
-/*   Updated: 2019/10/25 21:36:38 by vifonne          ###   ########.fr       */
+/*   Updated: 2019/10/26 14:25:09 by vifonne          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,10 @@
 # include "libft.h"
 # include <stdint.h>
 # include <stdlib.h>
+# include <fcntl.h>
+# include <unistd.h>
 # define ROTATE_LEFT(x, n) (((x) << (n)) | ((x) >> (32-(n))))
+# define MD5_BUFF_SIZE 64
 
 typedef struct	s_init
 {
@@ -35,12 +38,13 @@ typedef struct	s_hash
 
 typedef struct	s_msg
 {
-	uint8_t		*content;
-	uint8_t		*content_prepared;
-	size_t		content_length;
+	uint8_t		*buffer;
+	uint8_t		*buffer_prepared;
+	size_t		content_original_len;
 	size_t		length;
-	t_init		md_buffer;
 	char		*algo_name;
+	t_init		md_buffer;
+	t_hash		hash;
 }				t_msg;
 
 typedef struct	s_options
@@ -50,7 +54,6 @@ typedef struct	s_options
 	int			r;
 	int			s;
 	int			start_ac;
-	int			is_file;
 }				t_options;
 
 /*
@@ -66,14 +69,13 @@ size_t			md5_padding_calc(t_msg *msg);
 int				md5_append_padding(t_msg *msg);
 int				md5_append_length(t_msg *msg);
 int				md5_preparation(t_msg *msg);
-int				md5(uint8_t *content, t_options opt);
+int				md5(char *str, t_msg *msg, t_options opt);
 void			md5_init_md_buffer(t_msg *msg);
-void			md5_loop(t_msg *msg, t_hash *hash, size_t block_index);
 
 /*
 **	SHA256
 */
-int				sha256(uint8_t *content, t_options opt);
+int				sha256(char *str, t_msg *msg, t_options opt);
 
 /*
 **	UTILS

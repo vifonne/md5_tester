@@ -6,11 +6,12 @@
 /*   By: vifonne <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/10/10 10:52:55 by vifonne           #+#    #+#             */
-/*   Updated: 2019/10/25 21:36:37 by vifonne          ###   ########.fr       */
+/*   Updated: 2019/10/26 16:55:57 by vifonne          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_ssl_md5.h"
+#include <stdio.h>
 
 uint32_t	g_sintab[64] = {0xd76aa478, 0xe8c7b756, 0x242070db, 0xc1bdceee,
 	0xf57c0faf, 0x4787c62a, 0xa8304613, 0xfd469501,
@@ -34,47 +35,47 @@ uint32_t	g_tab[64] = {7, 12, 17, 22, 7, 12, 17, 22, 7, 12, 17, 22, 7, 12, 17,
 	11, 16, 23, 4, 11, 16, 23, 4, 11, 16, 23, 4, 11, 16, 23, 6,
 	10, 15, 21, 6, 10, 15, 21, 6, 10, 15, 21, 6, 10, 15, 21};
 
-void		md5_init_hash(t_hash *hash, t_msg *msg)
+void		md5_init_hash(t_msg *msg)
 {
-	hash->a = msg->md_buffer.h[0];
-	hash->b = msg->md_buffer.h[1];
-	hash->c = msg->md_buffer.h[2];
-	hash->d = msg->md_buffer.h[3];
+	msg->hash.a = msg->md_buffer.h[0];
+	msg->hash.b = msg->md_buffer.h[1];
+	msg->hash.c = msg->md_buffer.h[2];
+	msg->hash.d = msg->md_buffer.h[3];
 }
 
-void		md5_add_hash(t_hash hash, t_msg *msg)
+void		md5_add_hash(t_msg *msg)
 {
-	msg->md_buffer.h[0] += hash.a;
-	msg->md_buffer.h[1] += hash.b;
-	msg->md_buffer.h[2] += hash.c;
-	msg->md_buffer.h[3] += hash.d;
+	msg->md_buffer.h[0] += msg->hash.a;
+	msg->md_buffer.h[1] += msg->hash.b;
+	msg->md_buffer.h[2] += msg->hash.c;
+	msg->md_buffer.h[3] += msg->hash.d;
 }
 
-void		md5_if_forest(t_hash *hash, size_t idx)
+void		md5_if_forest(t_msg *msg, size_t idx)
 {
 	if (idx < 16)
 	{
-		hash->f = (hash->b & hash->c) | ((~hash->b) & hash->d);
-		hash->g = idx;
+		msg->hash.f = (msg->hash.b & msg->hash.c) | ((~msg->hash.b) & msg->hash.d);
+		msg->hash.g = idx;
 	}
 	else if (idx < 32)
 	{
-		hash->f = (hash->d & hash->b) | ((~hash->d) & hash->c);
-		hash->g = (5 * idx + 1) % 16;
+		msg->hash.f = (msg->hash.d & msg->hash.b) | ((~msg->hash.d) & msg->hash.c);
+		msg->hash.g = (5 * idx + 1) % 16;
 	}
 	else if (idx < 48)
 	{
-		hash->f = hash->b ^ hash->c ^ hash->d;
-		hash->g = (3 * idx + 5) % 16;
+		msg->hash.f = msg->hash.b ^ msg->hash.c ^ msg->hash.d;
+		msg->hash.g = (3 * idx + 5) % 16;
 	}
 	else if (idx < 64)
 	{
-		hash->f = hash->c ^ (hash->b | (~hash->d));
-		hash->g = (7 * idx) % 16;
+		msg->hash.f = msg->hash.c ^ (msg->hash.b | (~msg->hash.d));
+		msg->hash.g = (7 * idx) % 16;
 	}
 }
 
-void		md5_loop(t_msg *msg, t_hash *hash, size_t block_index)
+void		md5_loop(uint32_t *buffer, t_msg *msg)
 {
 	uint32_t	tmp;
 	size_t		idx;
@@ -82,38 +83,80 @@ void		md5_loop(t_msg *msg, t_hash *hash, size_t block_index)
 	idx = 0;
 	while (idx < 64)
 	{
-		md5_if_forest(hash, idx);
-		tmp = hash->d;
-		hash->d = hash->c;
-		hash->c = hash->b;
-		hash->b = ROTATE_LEFT((hash->a + hash->f + g_sintab[idx]
-			+ *(msg->content_prepared + block_index + hash->g)), g_tab[idx])
-			+ hash->b;
-		hash->a = tmp;
+		md5_if_forest(msg, idx);
+		tmp = msg->hash.d;
+		msg->hash.d = msg->hash.c;
+		msg->hash.c = msg->hash.b;
+		msg->hash.b = ROTATE_LEFT((msg->hash.a + msg->hash.f + g_sintab[idx]
+					+ *(buffer + msg->hash.g)), g_tab[idx])
+			+ msg->hash.b;
+		msg->hash.a = tmp;
 		idx++;
 	}
 }
 
-int			md5(uint8_t *content, t_options opt)
+int			md5_file(char *filename, t_msg *msg)
+{
+	int		fd;
+	int		ret;
+	char	md5_buffer[MD5_BUFF_SIZE];
+
+	fd = open(filename, O_RDONLY);
+	if (fd < 0)
+		return (0);
+	while ((ret = read(fd, md5_buffer, MD5_BUFF_SIZE)))
+	{
+		printf("ret: %d\n", ret);
+		msg->content_original_len += ret;
+		msg->buffer = (uint8_t *)md5_buffer;
+		if (ret <= MD5_BUFF_SIZE)
+		{
+			if (!(md5_preparation(msg)))
+				return (0);
+		}
+		md5_init_hash(msg);
+		if (ret <= MD5_BUFF_SIZE)
+			md5_loop((uint32_t *)msg->buffer_prepared, msg);
+		else
+			md5_loop((uint32_t *)msg->buffer, msg);
+		md5_add_hash(msg);
+	}
+	close(fd);
+	return (1);
+}
+
+int			md5_string(char *str, t_msg *msg)
 {
 	size_t	block_index;
-	t_hash	hash;
-	t_msg	*msg;
 
-	if (!(msg = (t_msg *)ft_memalloc(sizeof(t_msg))))
-		return (0);
-	msg->content = content;
-	msg->algo_name = "MD5";
+	msg->buffer = (uint8_t *)ft_strdup(str);
+	msg->content_original_len = ft_strlen(str);
 	if (!md5_preparation(msg))
 		return (0);
 	block_index = 0;
-	md5_init_md_buffer(msg);
 	while (block_index < msg->length)
 	{
-		md5_init_hash(&hash, msg);
-		md5_loop(msg, &hash, block_index);
-		md5_add_hash(hash, msg);
+		md5_init_hash(msg);
+		md5_loop((uint32_t *)(msg->buffer_prepared + block_index), msg);
+		md5_add_hash(msg);
 		block_index += 64;
+	}
+	return (1);
+}
+
+int			md5(char *str, t_msg *msg, t_options opt)
+{
+	msg->algo_name = "MD5";
+	md5_init_md_buffer(msg);
+	if (opt.s == 1)
+	{
+		if (!(md5_string(str, msg)))
+			return (0);
+	}
+	else
+	{
+		if (!(md5_file(str, msg)))
+			return (0);
 	}
 	print_output(msg, opt);
 	return (1);
