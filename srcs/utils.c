@@ -6,7 +6,7 @@
 /*   By: vifonne <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/10/10 11:48:45 by vifonne           #+#    #+#             */
-/*   Updated: 2019/10/26 12:47:11 by vifonne          ###   ########.fr       */
+/*   Updated: 2019/10/27 15:59:21 by vifonne          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,7 +58,7 @@ t_options	parse_options (int ac, char **av)
 	t_options	opt;
 
 	arg_idx = 1;
-	opt = (t_options){0, 0, 0, 0, 0};
+	opt = (t_options){0, 0, 0, 0, 0, 0, 0};
 	while (arg_idx < ac)
 	{
 		if (av[arg_idx] && av[arg_idx][0] == '-')
@@ -75,7 +75,10 @@ t_options	parse_options (int ac, char **av)
 				else if (av[arg_idx][str_idx] == 's')
 					opt.s = 1;
 				else
-					return ((t_options){-1, -1, -1, -1, -1});
+				{
+					opt.unknown_flag = 1;
+					return (opt);
+				}
 				str_idx++;
 			}
 		}
@@ -89,7 +92,7 @@ t_options	parse_options (int ac, char **av)
 
 void	print_output(t_msg *msg, t_options opt)
 {
-	if (opt.q == 1) 
+	if (opt.q == 1 || opt.is_stdin == 1) 
 	{
 		print_byte(msg);
 	}
@@ -97,12 +100,16 @@ void	print_output(t_msg *msg, t_options opt)
 	{
 		ft_putstr(msg->algo_name);
 		ft_putstr(" (\"");
-		ft_putstr((char *)msg->buffer);
+		ft_putstr(msg->filename);
 		ft_putstr("\") = ");
 		print_byte(msg);
 	}
 	else
 	{
-		print_byte(msg);	
+		ft_putstr(msg->algo_name);
+		ft_putstr(" (");
+		ft_putstr(msg->filename);
+		ft_putstr(") = ");
+		print_byte(msg);
 	}
 }

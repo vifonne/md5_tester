@@ -6,7 +6,7 @@
 /*   By: vifonne <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/10/10 10:52:55 by vifonne           #+#    #+#             */
-/*   Updated: 2019/10/26 16:55:57 by vifonne          ###   ########.fr       */
+/*   Updated: 2019/10/27 16:02:09 by vifonne          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,22 +34,6 @@ uint32_t	g_tab[64] = {7, 12, 17, 22, 7, 12, 17, 22, 7, 12, 17, 22, 7, 12, 17,
 	22, 5, 9, 14, 20, 5, 9, 14, 20, 5, 9, 14, 20, 5, 9, 14, 20, 4,
 	11, 16, 23, 4, 11, 16, 23, 4, 11, 16, 23, 4, 11, 16, 23, 6,
 	10, 15, 21, 6, 10, 15, 21, 6, 10, 15, 21, 6, 10, 15, 21};
-
-void		md5_init_hash(t_msg *msg)
-{
-	msg->hash.a = msg->md_buffer.h[0];
-	msg->hash.b = msg->md_buffer.h[1];
-	msg->hash.c = msg->md_buffer.h[2];
-	msg->hash.d = msg->md_buffer.h[3];
-}
-
-void		md5_add_hash(t_msg *msg)
-{
-	msg->md_buffer.h[0] += msg->hash.a;
-	msg->md_buffer.h[1] += msg->hash.b;
-	msg->md_buffer.h[2] += msg->hash.c;
-	msg->md_buffer.h[3] += msg->hash.d;
-}
 
 void		md5_if_forest(t_msg *msg, size_t idx)
 {
@@ -81,6 +65,7 @@ void		md5_loop(uint32_t *buffer, t_msg *msg)
 	size_t		idx;
 
 	idx = 0;
+	md5_init_hash(msg);
 	while (idx < 64)
 	{
 		md5_if_forest(msg, idx);
@@ -93,70 +78,77 @@ void		md5_loop(uint32_t *buffer, t_msg *msg)
 		msg->hash.a = tmp;
 		idx++;
 	}
+	md5_add_hash(msg);
 }
 
-int			md5_file(char *filename, t_msg *msg)
+void		read_from_fd(int fd, t_msg *msg)
 {
-	int		fd;
-	int		ret;
-	char	md5_buffer[MD5_BUFF_SIZE];
+	ssize_t	ret;
+	char	read_buffer[READ_BUFF_SIZE];
 
-	fd = open(filename, O_RDONLY);
-	if (fd < 0)
-		return (0);
-	while ((ret = read(fd, md5_buffer, MD5_BUFF_SIZE)))
+	while ((ret = read(fd, read_buffer, READ_BUFF_SIZE)) > 0)
 	{
-		printf("ret: %d\n", ret);
-		msg->content_original_len += ret;
-		msg->buffer = (uint8_t *)md5_buffer;
-		if (ret <= MD5_BUFF_SIZE)
+		msg->original_len += ret;
+		md5_string((uint8_t *)read_buffer, ret, msg);
+	}
+	md5_preparation(msg);
+}
+
+void		md5_string(uint8_t *str, ssize_t length, t_msg *msg)
+{
+	ssize_t 	cpy_len;
+
+	if (msg->internal_buffer_len > 0)
+	{
+		cpy_len = MD5_BUFF_SIZE - msg->internal_buffer_len;
+		if (length < cpy_len)
+			cpy_len = length;
+		ft_memcpy(msg->internal_buffer + msg->internal_buffer_len, str, cpy_len);
+		msg->internal_buffer_len += cpy_len;
+		length -= cpy_len;
+		if (msg->internal_buffer_len == MD5_BUFF_SIZE)
 		{
-			if (!(md5_preparation(msg)))
-				return (0);
+			md5_loop((uint32_t *)msg->internal_buffer, msg);
+			msg->internal_buffer_len = 0;
 		}
-		md5_init_hash(msg);
-		if (ret <= MD5_BUFF_SIZE)
-			md5_loop((uint32_t *)msg->buffer_prepared, msg);
-		else
-			md5_loop((uint32_t *)msg->buffer, msg);
-		md5_add_hash(msg);
 	}
-	close(fd);
-	return (1);
-}
-
-int			md5_string(char *str, t_msg *msg)
-{
-	size_t	block_index;
-
-	msg->buffer = (uint8_t *)ft_strdup(str);
-	msg->content_original_len = ft_strlen(str);
-	if (!md5_preparation(msg))
-		return (0);
-	block_index = 0;
-	while (block_index < msg->length)
+	while (length >= 64)
 	{
-		md5_init_hash(msg);
-		md5_loop((uint32_t *)(msg->buffer_prepared + block_index), msg);
-		md5_add_hash(msg);
-		block_index += 64;
+		md5_loop((uint32_t *)str, msg);
+		str += 64;
+		length -= 64;
 	}
-	return (1);
+	if (length > 0)
+	{
+		ft_memcpy(msg->internal_buffer, str, length);
+		msg->internal_buffer_len = length;
+	}
 }
 
 int			md5(char *str, t_msg *msg, t_options opt)
 {
+	int	fd;
+
+	fd = 0;
 	msg->algo_name = "MD5";
+	msg->filename = str;
 	md5_init_md_buffer(msg);
 	if (opt.s == 1)
 	{
-		if (!(md5_string(str, msg)))
-			return (0);
+		msg->original_len += ft_strlen(str);
+		md5_string((uint8_t *)str, (ssize_t)msg->original_len, msg);
+		md5_preparation(msg);
 	}
 	else
 	{
-		if (!(md5_file(str, msg)))
-			return (0);
+		if (opt.is_stdin == 0)
+		{
+			fd = open(str, O_RDONLY);
+			if (fd < 0)
+				return (0);
+		}
+		read_from_fd(fd, msg);
+		close(fd);
 	}
 	print_output(msg, opt);
 	return (1);

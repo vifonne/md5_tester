@@ -6,7 +6,7 @@
 #    By: vifonne <marvin@42.fr>                     +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/10/11 10:20:14 by vifonne           #+#    #+#              #
-#    Updated: 2019/10/13 16:08:28 by vifonne          ###   ########.fr        #
+#    Updated: 2019/10/27 13:58:27 by vifonne          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -24,7 +24,7 @@ OBJ			=	$(SRC:.c=.o)
 DEP			=	$(OBJ:.o=.d)
 INC_DIR		=	includes
 
-CC			=	gcc -fsanitize=address
+CC			=	gcc -fsanitize=address -g
 CFLAGS		=	-Wall -Wextra -Werror -I ./libft -I $(INC_DIR)
 
 LIBFT		=	./libft/libft.a
