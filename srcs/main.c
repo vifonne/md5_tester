@@ -6,7 +6,7 @@
 /*   By: vifonne <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/10/10 10:17:48 by vifonne           #+#    #+#             */
-/*   Updated: 2019/11/08 15:07:39 by vifonne          ###   ########.fr       */
+/*   Updated: 2019/11/08 16:22:22 by vifonne          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,6 +74,7 @@ int		get_opt(int ac, char **av, int algo_choosen)
 {
 	size_t		arg_idx;
 	int			tmp;
+	int			s_tmp;
 	t_options	opt;
 
 	arg_idx = 0;
@@ -83,6 +84,14 @@ int		get_opt(int ac, char **av, int algo_choosen)
 		if (av[arg_idx][0] == '-')
 		{
 			tmp = parse_opt(av[arg_idx], &opt);
+			if (opt.p == 1)
+			{
+				s_tmp = opt.s;
+				opt.s = 0;
+				g_algo_fct_tab[algo_choosen](NULL, opt);
+				opt.p = 0;
+				opt.s = s_tmp;
+			}
 			if (tmp > 0)
 			{
 				g_algo_fct_tab[algo_choosen](av[arg_idx] + tmp + 1, opt);

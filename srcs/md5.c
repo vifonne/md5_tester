@@ -6,12 +6,11 @@
 /*   By: vifonne <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/10/10 10:52:55 by vifonne           #+#    #+#             */
-/*   Updated: 2019/11/08 12:39:21 by vifonne          ###   ########.fr       */
+/*   Updated: 2019/11/08 16:30:13 by vifonne          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_ssl_md5.h"
-#include <stdio.h>
 
 uint32_t	g_sintab[64] = {0xd76aa478, 0xe8c7b756, 0x242070db, 0xc1bdceee,
 	0xf57c0faf, 0x4787c62a, 0xa8304613, 0xfd469501,
@@ -88,9 +87,11 @@ void		read_from_fd(int fd, t_msg *msg)
 
 	while ((ret = read(fd, read_buffer, READ_BUFF_SIZE)) > 0)
 	{
+		ft_putstr(read_buffer);
 		msg->original_len += ret;
 		md5_string((uint8_t *)read_buffer, ret, msg);
 	}
+	ft_putchar('\n');
 	md5_preparation(msg);
 }
 
@@ -144,11 +145,15 @@ int			md5(char *str, t_options opt)
 	}
 	else
 	{
-		fd = open(str, O_RDONLY);
-		if (fd < 0)
-		{
-			free(msg);
-			return (0);
+		if (str == NULL)
+			fd = 0;
+		else {
+			fd = open(str, O_RDONLY);
+			if (fd < 0)
+			{
+				free(msg);
+				return (0);
+			}
 		}
 		read_from_fd(fd, msg);
 		close(fd);
