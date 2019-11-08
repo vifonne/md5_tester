@@ -6,7 +6,7 @@
 /*   By: vifonne <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/10/10 10:52:55 by vifonne           #+#    #+#             */
-/*   Updated: 2019/11/08 16:30:13 by vifonne          ###   ########.fr       */
+/*   Updated: 2019/11/08 17:09:38 by vifonne          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,12 +38,14 @@ void		md5_if_forest(t_msg *msg, size_t idx)
 {
 	if (idx < 16)
 	{
-		msg->hash.f = (msg->hash.b & msg->hash.c) | ((~msg->hash.b) & msg->hash.d);
+		msg->hash.f = (msg->hash.b & msg->hash.c)
+			| ((~msg->hash.b) & msg->hash.d);
 		msg->hash.g = idx;
 	}
 	else if (idx < 32)
 	{
-		msg->hash.f = (msg->hash.d & msg->hash.b) | ((~msg->hash.d) & msg->hash.c);
+		msg->hash.f = (msg->hash.d & msg->hash.b)
+			| ((~msg->hash.d) & msg->hash.c);
 		msg->hash.g = (5 * idx + 1) % 16;
 	}
 	else if (idx < 48)
@@ -97,7 +99,7 @@ void		read_from_fd(int fd, t_msg *msg)
 
 void		md5_string(uint8_t *str, ssize_t length, t_msg *msg)
 {
-	ssize_t 	cpy_len;
+	ssize_t	cpy_len;
 
 	if (msg->internal_buffer_len > 0)
 	{
@@ -132,7 +134,7 @@ int			md5(char *str, t_options opt)
 	t_msg	*msg;
 
 	fd = 0;
-	if (!(msg = (t_msg *) ft_memalloc(sizeof(t_msg))))
+	if (!(msg = (t_msg *)ft_memalloc(sizeof(t_msg))))
 		return (0);
 	msg->algo_name = "MD5";
 	msg->filename = str;
@@ -146,8 +148,11 @@ int			md5(char *str, t_options opt)
 	else
 	{
 		if (str == NULL)
+		{
 			fd = 0;
-		else {
+		}
+		else
+		{
 			fd = open(str, O_RDONLY);
 			if (fd < 0)
 			{

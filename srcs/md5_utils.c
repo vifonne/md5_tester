@@ -6,7 +6,7 @@
 /*   By: vifonne <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/10/13 14:29:05 by vifonne           #+#    #+#             */
-/*   Updated: 2019/10/27 16:00:36 by vifonne          ###   ########.fr       */
+/*   Updated: 2019/11/08 17:05:58 by vifonne          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@ void	md5_init_md_buffer(t_msg *msg)
 	msg->md_buffer.h[3] = 0x10325476;
 }
 
-void		md5_init_hash(t_msg *msg)
+void	md5_init_hash(t_msg *msg)
 {
 	msg->hash.a = msg->md_buffer.h[0];
 	msg->hash.b = msg->md_buffer.h[1];
@@ -28,7 +28,7 @@ void		md5_init_hash(t_msg *msg)
 	msg->hash.d = msg->md_buffer.h[3];
 }
 
-void		md5_add_hash(t_msg *msg)
+void	md5_add_hash(t_msg *msg)
 {
 	msg->md_buffer.h[0] += msg->hash.a;
 	msg->md_buffer.h[1] += msg->hash.b;

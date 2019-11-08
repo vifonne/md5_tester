@@ -6,7 +6,7 @@
 /*   By: vifonne <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/10/10 11:48:45 by vifonne           #+#    #+#             */
-/*   Updated: 2019/11/08 14:45:32 by vifonne          ###   ########.fr       */
+/*   Updated: 2019/11/08 17:06:25 by vifonne          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,7 +78,7 @@ void		print_output_full(t_msg *msg, int s, int r)
 
 void		print_output(t_msg *msg, t_options opt)
 {
-	if (opt.q == 1) 
+	if (opt.q == 1)
 		print_byte(msg);
 	else
 		print_output_full(msg, opt.s, opt.r);

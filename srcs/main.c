@@ -6,7 +6,7 @@
 /*   By: vifonne <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/10/10 10:17:48 by vifonne           #+#    #+#             */
-/*   Updated: 2019/11/08 16:22:22 by vifonne          ###   ########.fr       */
+/*   Updated: 2019/11/08 17:06:37 by vifonne          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,7 +61,6 @@ int		parse_opt(char *str, t_options *opt)
 				opt->q = 1;
 			else if (str[idx] == 'r')
 				opt->r = 1;
-
 			else
 				return (-1);
 		}
