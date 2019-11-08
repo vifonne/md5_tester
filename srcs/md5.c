@@ -6,7 +6,7 @@
 /*   By: vifonne <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/10/10 10:52:55 by vifonne           #+#    #+#             */
-/*   Updated: 2019/10/27 16:02:09 by vifonne          ###   ########.fr       */
+/*   Updated: 2019/11/08 12:39:21 by vifonne          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -125,11 +125,14 @@ void		md5_string(uint8_t *str, ssize_t length, t_msg *msg)
 	}
 }
 
-int			md5(char *str, t_msg *msg, t_options opt)
+int			md5(char *str, t_options opt)
 {
-	int	fd;
+	int		fd;
+	t_msg	*msg;
 
 	fd = 0;
+	if (!(msg = (t_msg *) ft_memalloc(sizeof(t_msg))))
+		return (0);
 	msg->algo_name = "MD5";
 	msg->filename = str;
 	md5_init_md_buffer(msg);
@@ -141,15 +144,16 @@ int			md5(char *str, t_msg *msg, t_options opt)
 	}
 	else
 	{
-		if (opt.is_stdin == 0)
+		fd = open(str, O_RDONLY);
+		if (fd < 0)
 		{
-			fd = open(str, O_RDONLY);
-			if (fd < 0)
-				return (0);
+			free(msg);
+			return (0);
 		}
 		read_from_fd(fd, msg);
 		close(fd);
 	}
 	print_output(msg, opt);
+	free(msg);
 	return (1);
 }

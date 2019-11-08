@@ -6,7 +6,7 @@
 /*   By: vifonne <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/10/10 11:48:45 by vifonne           #+#    #+#             */
-/*   Updated: 2019/10/27 15:59:21 by vifonne          ###   ########.fr       */
+/*   Updated: 2019/11/08 14:45:32 by vifonne          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@ void		print_byte(t_msg *msg)
 		printf("%02x", to_print[idx]);
 		idx++;
 	}
-	printf("\n");
+	fflush(stdout);
 }
 
 void		print_bits(uint8_t *msg, size_t length)
@@ -51,65 +51,36 @@ void		print_bits(uint8_t *msg, size_t length)
 	write(1, "\n", 1);
 }
 
-t_options	parse_options (int ac, char **av)
+void		print_output_full(t_msg *msg, int s, int r)
 {
-	int			arg_idx;
-	int			str_idx;
-	t_options	opt;
-
-	arg_idx = 1;
-	opt = (t_options){0, 0, 0, 0, 0, 0, 0};
-	while (arg_idx < ac)
-	{
-		if (av[arg_idx] && av[arg_idx][0] == '-')
-		{
-			str_idx = 1;
-			while (av[arg_idx][str_idx] != '\0')
-			{
-				if (av[arg_idx][str_idx] == 'p')
-					opt.p = 1;
-				else if (av[arg_idx][str_idx] == 'q')
-					opt.q = 1;
-				else if (av[arg_idx][str_idx] == 'r')
-					opt.r = 1;
-				else if (av[arg_idx][str_idx] == 's')
-					opt.s = 1;
-				else
-				{
-					opt.unknown_flag = 1;
-					return (opt);
-				}
-				str_idx++;
-			}
-		}
-		else
-			break ;
-		arg_idx++;
-	}
-	opt.start_ac = arg_idx + 1;
-	return (opt);
-}
-
-void	print_output(t_msg *msg, t_options opt)
-{
-	if (opt.q == 1 || opt.is_stdin == 1) 
-	{
-		print_byte(msg);
-	}
-	else if (opt.s == 1)
-	{
-		ft_putstr(msg->algo_name);
-		ft_putstr(" (\"");
-		ft_putstr(msg->filename);
-		ft_putstr("\") = ");
-		print_byte(msg);
-	}
-	else
+	if (r == 0)
 	{
 		ft_putstr(msg->algo_name);
 		ft_putstr(" (");
+		if (s == 1)
+			ft_putchar('"');
 		ft_putstr(msg->filename);
+		if (s == 1)
+			ft_putchar('"');
 		ft_putstr(") = ");
-		print_byte(msg);
 	}
+	print_byte(msg);
+	if (r == 1)
+	{
+		ft_putchar(' ');
+		if (s == 1)
+			ft_putchar('"');
+		ft_putstr(msg->filename);
+		if (s == 1)
+			ft_putchar('"');
+	}
+}
+
+void		print_output(t_msg *msg, t_options opt)
+{
+	if (opt.q == 1) 
+		print_byte(msg);
+	else
+		print_output_full(msg, opt.s, opt.r);
+	ft_putchar('\n');
 }

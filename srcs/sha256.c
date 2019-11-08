@@ -6,15 +6,14 @@
 /*   By: vifonne <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/10/13 16:02:10 by vifonne           #+#    #+#             */
-/*   Updated: 2019/10/26 11:40:25 by vifonne          ###   ########.fr       */
+/*   Updated: 2019/11/08 12:39:49 by vifonne          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_ssl_md5.h"
 
-int		sha256(char *str, t_msg *msg, t_options opt)
+int		sha256(char *str, t_options opt)
 {
-	(void)msg;
 	(void)str;
 	(void)opt;
 	return (0);

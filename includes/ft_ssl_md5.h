@@ -6,7 +6,7 @@
 /*   By: vifonne <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/10/10 10:53:12 by vifonne           #+#    #+#             */
-/*   Updated: 2019/10/27 15:47:49 by vifonne          ###   ########.fr       */
+/*   Updated: 2019/11/08 11:52:25 by vifonne          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,9 +54,6 @@ typedef struct	s_options
 	int			q;
 	int			r;
 	int			s;
-	int			start_ac;
-	int			is_stdin;
-	int			unknown_flag;
 }				t_options;
 
 /*
@@ -74,12 +71,12 @@ void			md5_add_hash(t_msg *msg);
 void			md5_preparation(t_msg *msg);
 void			md5_string(uint8_t *str, ssize_t length, t_msg *msg);
 void			md5_loop(uint32_t *buffer, t_msg *msg);
-int				md5(char *str, t_msg *msg, t_options opt);
+int				md5(char *str, t_options opt);
 
 /*
 **	SHA256
 */
-int				sha256(char *str, t_msg *msg, t_options opt);
+int				sha256(char *str, t_options opt);
 
 /*
 **	UTILS
