@@ -6,7 +6,7 @@
 #    By: vifonne <marvin@42.fr>                     +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/10/11 10:20:14 by vifonne           #+#    #+#              #
-#    Updated: 2019/10/27 13:58:27 by vifonne          ###   ########.fr        #
+#    Updated: 2019/11/10 15:39:30 by vifonne          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -18,6 +18,7 @@ SRC			=	main.c				\
 				md5_utils.c			\
 				error.c				\
 				sha256.c			\
+				sha256_utils.c		\
 				utils.c
 OBJ_DIR		=	.obj
 OBJ			=	$(SRC:.c=.o)
@@ -44,8 +45,6 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c | $(OBJ_DIR)
 
 $(OBJ_DIR):
 	@/bin/mkdir $@
-	@/bin/mkdir $@/op
-	@/bin/mkdir $@/visual
 
 clean:
 	@echo "Cleaning $(NAME)"

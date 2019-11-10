@@ -6,7 +6,7 @@
 /*   By: vifonne <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/10/10 10:53:12 by vifonne           #+#    #+#             */
-/*   Updated: 2019/11/08 11:52:25 by vifonne          ###   ########.fr       */
+/*   Updated: 2019/11/10 17:30:03 by vifonne          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,12 +18,13 @@
 # include <fcntl.h>
 # include <unistd.h>
 # define ROTATE_LEFT(x, n) (((x) << (n)) | ((x) >> (32-(n))))
+# define ROTATE_RIGHT(x, n) (((x) >> (n)) | ((x) << (32-(n))))
 # define MD5_BUFF_SIZE 64
 # define READ_BUFF_SIZE 4096
 
 typedef struct	s_init
 {
-	uint32_t	h[4];
+	uint32_t	h[8];
 }				t_init;
 
 typedef struct	s_hash
@@ -35,11 +36,12 @@ typedef struct	s_hash
 	uint32_t	e;
 	uint32_t	f;
 	uint32_t	g;
+	uint32_t	h;
 }				t_hash;
 
 typedef struct	s_msg
 {
-	uint8_t		internal_buffer[MD5_BUFF_SIZE];
+	uint8_t		internal_buffer[256];
 	size_t		internal_buffer_len;
 	size_t		original_len;
 	char		*algo_name;
@@ -76,6 +78,12 @@ int				md5(char *str, t_options opt);
 /*
 **	SHA256
 */
+void			sha256_init_md_buffer(t_msg *msg);
+void			sha256_init_hash(t_msg *msg);
+void			sha256_add_hash(t_msg *msg);
+void			sha256_preparation(t_msg *msg);
+void			sha256_string(uint8_t *str, ssize_t length, t_msg *msg);
+void			sha256_loop(uint32_t *buffer, t_msg *msg);
 int				sha256(char *str, t_options opt);
 
 /*
@@ -85,4 +93,5 @@ void			print_output(t_msg *msg, t_options opt);
 void			ft_error(int error_code);
 void			print_bits(uint8_t *msg, size_t length);
 void			print_byte(t_msg *msg);
+void			print_byte_256(t_msg *msg);
 #endif

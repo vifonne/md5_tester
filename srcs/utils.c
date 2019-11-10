@@ -6,12 +6,34 @@
 /*   By: vifonne <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/10/10 11:48:45 by vifonne           #+#    #+#             */
-/*   Updated: 2019/11/08 17:06:25 by vifonne          ###   ########.fr       */
+/*   Updated: 2019/11/10 16:50:35 by vifonne          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_ssl_md5.h"
 #include <stdio.h>
+
+void		print_byte_256(t_msg *msg)
+{
+	uint8_t		to_print[32];
+	uint32_t	tmp;
+	int			idx;
+
+	idx = 0;
+	while (idx < 8)
+	{
+		tmp = __builtin_bswap32(msg->md_buffer.h[idx]);
+		ft_memcpy(to_print + idx * sizeof(uint32_t), &tmp, sizeof(uint32_t));
+		idx++;
+	}
+	idx = 0;
+	while (idx < 32)
+	{
+		printf("%02x", to_print[idx]);
+		idx++;
+	}
+	fflush(stdout);
+}
 
 void		print_byte(t_msg *msg)
 {
