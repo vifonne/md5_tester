@@ -6,7 +6,7 @@
 /*   By: vifonne <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/10/13 16:02:10 by vifonne           #+#    #+#             */
-/*   Updated: 2019/11/10 16:35:13 by vifonne          ###   ########.fr       */
+/*   Updated: 2019/11/15 12:21:22 by vifonne          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,7 +78,7 @@ uint32_t	temp2(uint32_t s0, uint32_t maj)
 	return (s0 + maj);
 }
 
-void		sha256_loop(uint32_t *buffer, t_msg *msg)
+void		sha256_loop(uint32_t *buffer, t_msg *msg, t_functions *fct_table)
 {
 	uint32_t	tmp1;
 	uint32_t	tmp2;
@@ -86,7 +86,7 @@ void		sha256_loop(uint32_t *buffer, t_msg *msg)
 
 	idx = 0;
 	sha256_word_extend(buffer);
-	sha256_init_hash(msg);
+	fct_table->init_hash(msg);
 	while (idx < 64)
 	{
 		tmp1 = temp1(msg, s1(msg), ch(msg), buffer, idx);
@@ -101,47 +101,21 @@ void		sha256_loop(uint32_t *buffer, t_msg *msg)
 		msg->hash.a = tmp1 + tmp2;
 		idx++;
 	}
-	sha256_add_hash(msg);
+	fct_table->add_hash(msg);
 }
 
-void		sha256_read_from_fd(int fd, t_msg *msg)
+void		sha256_string(uint8_t *str, ssize_t length, t_msg *msg, t_functions *fct_table)
 {
-	ssize_t	ret;
-	char	read_buffer[READ_BUFF_SIZE];
-
-	while ((ret = read(fd, read_buffer, READ_BUFF_SIZE)) > 0)
-	{
-		write(1, read_buffer, ret);
-		msg->original_len += ret;
-		sha256_string((uint8_t *)read_buffer, ret, msg);
-	}
-	ft_putchar('\n');
-	sha256_preparation(msg);
-}
-
-void		sha256_string(uint8_t *str, ssize_t length, t_msg *msg)
-{
-	ssize_t		cpy_len;
-	uint32_t	sha_buff[64];
+	uint32_t	sha_buff[MD5_BUFF_SIZE];
 
 	if (msg->internal_buffer_len > 0)
 	{
-		cpy_len = MD5_BUFF_SIZE - msg->internal_buffer_len;
-		if (length < cpy_len)
-			cpy_len = length;
-		ft_memcpy(msg->internal_buffer + msg->internal_buffer_len, str, cpy_len);
-		msg->internal_buffer_len += cpy_len;
-		length -= cpy_len;
-		if (msg->internal_buffer_len == MD5_BUFF_SIZE)
-		{
-			sha256_loop((uint32_t *)msg->internal_buffer, msg);
-			msg->internal_buffer_len = 0;
-		}
+		length = fct_table->basic_string(str, length, msg, fct_table);
 	}
 	while (length >= 64)
 	{
 		ft_memcpy(sha_buff, str, 64);
-		sha256_loop(sha_buff, msg);
+		fct_table->loop(sha_buff, msg, fct_table);
 		str += 64;
 		length -= 64;
 	}
@@ -152,7 +126,7 @@ void		sha256_string(uint8_t *str, ssize_t length, t_msg *msg)
 	}
 }
 
-int		sha256(char *str, t_options opt)
+int		sha256(char *str, t_functions *fct_table, t_options opt)
 {
 	int		fd;
 	t_msg	*msg;
@@ -160,13 +134,14 @@ int		sha256(char *str, t_options opt)
 	if (!(msg = (t_msg *)ft_memalloc(sizeof(t_msg))))
 		return (0);
 	msg->algo_name = "SHA256";
+	msg->algo_choosen = 1;
 	msg->filename = str;
-	sha256_init_md_buffer(msg);
+	fct_table->init_md_buffer(msg);
 	if (opt.s == 1)
 	{
 		msg->original_len += ft_strlen(str);
-		sha256_string((uint8_t *)str, (ssize_t)msg->original_len, msg);
-		sha256_preparation(msg);
+		fct_table->string((uint8_t *)str, (ssize_t)msg->original_len, msg, fct_table);
+		fct_table->preparation(msg, fct_table);
 	}
 	else
 	{
@@ -183,7 +158,7 @@ int		sha256(char *str, t_options opt)
 				return (0);
 			}
 		}
-		sha256_read_from_fd(fd, msg);
+		fct_table->read_from_fd(fd, msg, fct_table);
 		close(fd);
 	}
 	print_byte_256(msg);

@@ -6,7 +6,7 @@
 /*   By: vifonne <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/10/10 10:52:55 by vifonne           #+#    #+#             */
-/*   Updated: 2019/11/10 16:03:54 by vifonne          ###   ########.fr       */
+/*   Updated: 2019/11/15 12:25:37 by vifonne          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,13 +60,13 @@ void		md5_if_forest(t_msg *msg, size_t idx)
 	}
 }
 
-void		md5_loop(uint32_t *buffer, t_msg *msg)
+void		md5_loop(uint32_t *buffer, t_msg *msg, t_functions *fct_table)
 {
 	uint32_t	tmp;
 	size_t		idx;
 
 	idx = 0;
-	md5_init_hash(msg);
+	fct_table->init_hash(msg);
 	while (idx < 64)
 	{
 		md5_if_forest(msg, idx);
@@ -79,45 +79,18 @@ void		md5_loop(uint32_t *buffer, t_msg *msg)
 		msg->hash.a = tmp;
 		idx++;
 	}
-	md5_add_hash(msg);
+	fct_table->add_hash(msg);
 }
 
-void		md5_read_from_fd(int fd, t_msg *msg)
+void		md5_string(uint8_t *str, ssize_t length, t_msg *msg, t_functions *fct_table)
 {
-	ssize_t	ret;
-	char	read_buffer[READ_BUFF_SIZE];
-
-	while ((ret = read(fd, read_buffer, READ_BUFF_SIZE)) > 0)
-	{
-		ft_putstr(read_buffer);
-		msg->original_len += ret;
-		md5_string((uint8_t *)read_buffer, ret, msg);
-	}
-	ft_putchar('\n');
-	md5_preparation(msg);
-}
-
-void		md5_string(uint8_t *str, ssize_t length, t_msg *msg)
-{
-	ssize_t	cpy_len;
-
 	if (msg->internal_buffer_len > 0)
 	{
-		cpy_len = MD5_BUFF_SIZE - msg->internal_buffer_len;
-		if (length < cpy_len)
-			cpy_len = length;
-		ft_memcpy(msg->internal_buffer + msg->internal_buffer_len, str, cpy_len);
-		msg->internal_buffer_len += cpy_len;
-		length -= cpy_len;
-		if (msg->internal_buffer_len == MD5_BUFF_SIZE)
-		{
-			md5_loop((uint32_t *)msg->internal_buffer, msg);
-			msg->internal_buffer_len = 0;
-		}
+		length = fct_table->basic_string(str, length, msg, fct_table);
 	}
 	while (length >= 64)
 	{
-		md5_loop((uint32_t *)str, msg);
+		fct_table->loop((uint32_t *)str, msg, fct_table);
 		str += 64;
 		length -= 64;
 	}
@@ -128,7 +101,7 @@ void		md5_string(uint8_t *str, ssize_t length, t_msg *msg)
 	}
 }
 
-int			md5(char *str, t_options opt)
+int			md5(char *str, t_functions *fct_table, t_options opt)
 {
 	int		fd;
 	t_msg	*msg;
@@ -136,13 +109,14 @@ int			md5(char *str, t_options opt)
 	if (!(msg = (t_msg *)ft_memalloc(sizeof(t_msg))))
 		return (0);
 	msg->algo_name = "MD5";
+	msg->algo_choosen = 0;
 	msg->filename = str;
-	md5_init_md_buffer(msg);
+	fct_table->init_md_buffer(msg);
 	if (opt.s == 1)
 	{
 		msg->original_len += ft_strlen(str);
-		md5_string((uint8_t *)str, (ssize_t)msg->original_len, msg);
-		md5_preparation(msg);
+		fct_table->string((uint8_t *)str, (ssize_t)msg->original_len, msg, fct_table);
+		fct_table->preparation(msg, fct_table);
 	}
 	else
 	{
@@ -159,7 +133,7 @@ int			md5(char *str, t_options opt)
 				return (0);
 			}
 		}
-		md5_read_from_fd(fd, msg);
+		fct_table->read_from_fd(fd, msg, fct_table);
 		close(fd);
 	}
 	print_output(msg, opt);

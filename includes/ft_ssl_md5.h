@@ -6,7 +6,7 @@
 /*   By: vifonne <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/10/10 10:53:12 by vifonne           #+#    #+#             */
-/*   Updated: 2019/11/10 17:30:03 by vifonne          ###   ########.fr       */
+/*   Updated: 2019/11/15 12:24:07 by vifonne          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,10 +45,24 @@ typedef struct	s_msg
 	size_t		internal_buffer_len;
 	size_t		original_len;
 	char		*algo_name;
+	int			algo_choosen;
 	char		*filename;
 	t_init		md_buffer;
 	t_hash		hash;
 }				t_msg;
+
+typedef struct	s_functions
+{
+	ssize_t		(*basic_string)(uint8_t *str, ssize_t lenbth, t_msg *msg, struct s_functions *fct_table);
+	void		(*read_from_fd)(int fd, t_msg *msg, struct s_functions *fct_table);
+	void		(*init_md_buffer)(t_msg *msg);
+	void		(*init_hash)(t_msg *msg);
+	void		(*add_hash)(t_msg *msg);
+	void		(*preparation)(t_msg *msg, struct s_functions *fct_table);
+	void		(*string)(uint8_t *str, ssize_t length, t_msg *msg, struct s_functions *fct_table);
+	void		(*loop)(uint32_t *buffer, t_msg *msg, struct s_functions *fct_table);
+}				t_functions;
+
 
 typedef struct	s_options
 {
@@ -59,6 +73,15 @@ typedef struct	s_options
 }				t_options;
 
 /*
+**	COMMON
+*/
+void			read_from_fd(int fd, t_msg *msg, t_functions *fct_table);
+ssize_t			basic_string(uint8_t *str, ssize_t length, t_msg *msg, t_functions *fct_table);
+void			init_md_buffer(t_msg *msg);
+void			init_hash(t_msg *msg);
+void			add_hash(t_msg *msg);
+void			preparation(t_msg *msg, t_functions *fct_table);
+/*
 **	PARSING
 */
 int				algo_finder(char *algo_name);
@@ -67,24 +90,16 @@ t_options		parse_options(int ac, char **av);
 /*
 **	MD5
 */
-void			md5_init_md_buffer(t_msg *msg);
-void			md5_init_hash(t_msg *msg);
-void			md5_add_hash(t_msg *msg);
-void			md5_preparation(t_msg *msg);
-void			md5_string(uint8_t *str, ssize_t length, t_msg *msg);
-void			md5_loop(uint32_t *buffer, t_msg *msg);
-int				md5(char *str, t_options opt);
+void			md5_string(uint8_t *str, ssize_t length, t_msg *msg, t_functions *fct_table);
+void			md5_loop(uint32_t *buffer, t_msg *msg, t_functions *fct_table);
+int				md5(char *str, t_functions *fct_table, t_options opt);
 
 /*
 **	SHA256
 */
-void			sha256_init_md_buffer(t_msg *msg);
-void			sha256_init_hash(t_msg *msg);
-void			sha256_add_hash(t_msg *msg);
-void			sha256_preparation(t_msg *msg);
-void			sha256_string(uint8_t *str, ssize_t length, t_msg *msg);
-void			sha256_loop(uint32_t *buffer, t_msg *msg);
-int				sha256(char *str, t_options opt);
+void			sha256_string(uint8_t *str, ssize_t length, t_msg *msg, t_functions *fct_table);
+void			sha256_loop(uint32_t *buffer, t_msg *msg, t_functions *fct_table);
+int				sha256(char *str, t_functions *fct_table, t_options opt);
 
 /*
 **	UTILS

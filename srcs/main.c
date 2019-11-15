@@ -6,14 +6,15 @@
 /*   By: vifonne <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/10/10 10:17:48 by vifonne           #+#    #+#             */
-/*   Updated: 2019/11/08 17:06:37 by vifonne          ###   ########.fr       */
+/*   Updated: 2019/11/15 12:24:18 by vifonne          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_ssl_md5.h"
 
 char	*g_algo_name_tab[3] = {"md5", "sha256", 0};
-int		(*g_algo_fct_tab[2]) (char *str, t_options opt) = {&md5, &sha256};
+int		(*g_algo_fct_tab[2]) (char *str, t_functions *fct_table, t_options opt) = {&md5, &sha256};
+
 
 int		algo_finder(char *algo_name)
 {
@@ -34,6 +35,29 @@ int		no_options(t_options opt)
 	if (opt.p == 0 && opt.q == 0 && opt.r == 0 && opt.s == 0)
 		return (1);
 	return (0);
+}
+
+t_functions	set_fct_table(int algo_choosen)
+{
+	t_functions		fct_table;
+
+	fct_table.basic_string = basic_string;
+	fct_table.read_from_fd = read_from_fd;
+	fct_table.init_md_buffer = init_md_buffer;
+	fct_table.init_hash = init_hash;
+	fct_table.add_hash = add_hash;
+	fct_table.preparation = preparation;
+	if (algo_choosen == 0)
+	{
+		fct_table.string = md5_string;
+		fct_table.loop = md5_loop;
+	}
+	else
+	{
+		fct_table.string = sha256_string;
+		fct_table.loop = sha256_loop;
+	}
+	return (fct_table);
 }
 
 int		parse_opt(char *str, t_options *opt)
@@ -75,9 +99,11 @@ int		get_opt(int ac, char **av, int algo_choosen)
 	int			tmp;
 	int			s_tmp;
 	t_options	opt;
+	t_functions	fct_table;
 
 	arg_idx = 0;
 	opt = (t_options){0, 0, 0, 0};
+	fct_table = set_fct_table(algo_choosen);
 	while (arg_idx < (size_t)ac)
 	{
 		if (av[arg_idx][0] == '-')
@@ -87,19 +113,19 @@ int		get_opt(int ac, char **av, int algo_choosen)
 			{
 				s_tmp = opt.s;
 				opt.s = 0;
-				g_algo_fct_tab[algo_choosen](NULL, opt);
+				g_algo_fct_tab[algo_choosen](NULL, &fct_table, opt);
 				opt.p = 0;
 				opt.s = s_tmp;
 			}
 			if (tmp > 0)
 			{
-				g_algo_fct_tab[algo_choosen](av[arg_idx] + tmp + 1, opt);
+				g_algo_fct_tab[algo_choosen](av[arg_idx] + tmp + 1, &fct_table, opt);
 				opt.s = 0;
 			}
 		}
 		else
 		{
-			g_algo_fct_tab[algo_choosen](av[arg_idx], opt);
+			g_algo_fct_tab[algo_choosen](av[arg_idx], &fct_table, opt);
 			opt.p = 0;
 			opt.s = 0;
 		}

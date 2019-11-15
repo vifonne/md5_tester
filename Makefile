@@ -6,7 +6,7 @@
 #    By: vifonne <marvin@42.fr>                     +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/10/11 10:20:14 by vifonne           #+#    #+#              #
-#    Updated: 2019/11/10 15:39:30 by vifonne          ###   ########.fr        #
+#    Updated: 2019/11/15 12:24:57 by vifonne          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -15,10 +15,9 @@ NAME		=	ft_ssl
 SRC_DIR		=	srcs
 SRC			=	main.c				\
 				md5.c				\
-				md5_utils.c			\
 				error.c				\
 				sha256.c			\
-				sha256_utils.c		\
+				commons.c			\
 				utils.c
 OBJ_DIR		=	.obj
 OBJ			=	$(SRC:.c=.o)
