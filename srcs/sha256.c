@@ -6,7 +6,7 @@
 /*   By: vifonne <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/10/13 16:02:10 by vifonne           #+#    #+#             */
-/*   Updated: 2019/11/15 13:39:49 by vifonne          ###   ########.fr       */
+/*   Updated: 2019/11/15 15:46:58 by vifonne          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,41 +41,15 @@ void		sha256_word_extend(uint32_t *buffer)
 	}
 	while (idx < 64)
 	{
-		ss0 = ROTATE_RIGHT(buffer[idx - 15], 7) ^ ROTATE_RIGHT(buffer[idx - 15], 18) ^ (buffer[idx - 15] >> 3);
-		ss1 = ROTATE_RIGHT(buffer[idx - 2], 17) ^ ROTATE_RIGHT(buffer[idx - 2], 19) ^ (buffer[idx - 2] >> 10);
+		ss0 = ROTATE_RIGHT(buffer[idx - 15], 7)
+			^ ROTATE_RIGHT(buffer[idx - 15], 18)
+			^ (buffer[idx - 15] >> 3);
+		ss1 = ROTATE_RIGHT(buffer[idx - 2], 17)
+			^ ROTATE_RIGHT(buffer[idx - 2], 19)
+			^ (buffer[idx - 2] >> 10);
 		buffer[idx] = buffer[idx - 16] + ss0 + buffer[idx - 7] + ss1;
 		idx++;
 	}
-}
-
-uint32_t	s1(t_msg *msg)
-{
-	return (ROTATE_RIGHT(msg->hash.e, 6) ^ ROTATE_RIGHT(msg->hash.e, 11) ^ ROTATE_RIGHT(msg->hash.e, 25));
-}
-
-uint32_t	ch(t_msg *msg)
-{
-	return ((msg->hash.e & msg->hash.f) ^ ((~msg->hash.e) & msg->hash.g));
-}
-
-uint32_t	temp1(t_msg *msg, uint32_t s1, uint32_t ch, uint32_t *buffer, size_t idx)
-{
-	return (msg->hash.h + s1 + ch + g_sha256_sintab[idx] + buffer[idx]);
-}
-
-uint32_t	s0(t_msg *msg)
-{
-	return (ROTATE_RIGHT(msg->hash.a, 2) ^ ROTATE_RIGHT(msg->hash.a, 13) ^ ROTATE_RIGHT(msg->hash.a, 22));
-}
-
-uint32_t	maj(t_msg *msg)
-{
-	return ((msg->hash.a & msg->hash.b) ^ (msg->hash.a & msg->hash.c) ^ (msg->hash.b & msg->hash.c));
-}
-
-uint32_t	temp2(uint32_t s0, uint32_t maj)
-{
-	return (s0 + maj);
 }
 
 void		sha256_loop(uint32_t *buffer, t_msg *msg, t_functions *fct_table)
@@ -89,8 +63,10 @@ void		sha256_loop(uint32_t *buffer, t_msg *msg, t_functions *fct_table)
 	fct_table->init_hash(msg);
 	while (idx < 64)
 	{
-		tmp1 = temp1(msg, s1(msg), ch(msg), buffer, idx);
-		tmp2 = temp2(s0(msg), maj(msg));
+		tmp1 = msg->hash.h + S1(msg->hash.e)
+			+ CH(msg->hash.e, msg->hash.f, msg->hash.g)
+			+ g_sha256_sintab[idx] + buffer[idx];
+		tmp2 = S0(msg->hash.a) + MAJ(msg->hash.a, msg->hash.b, msg->hash.c);
 		msg->hash.h = msg->hash.g;
 		msg->hash.g = msg->hash.f;
 		msg->hash.f = msg->hash.e;
@@ -104,7 +80,8 @@ void		sha256_loop(uint32_t *buffer, t_msg *msg, t_functions *fct_table)
 	fct_table->add_hash(msg);
 }
 
-void		sha256_string(uint8_t *str, ssize_t length, t_msg *msg, t_functions *fct_table)
+void		sha256_string(uint8_t *str, ssize_t length, t_msg *msg
+				, t_functions *fct_table)
 {
 	uint32_t	sha_buff[MD5_BUFF_SIZE];
 

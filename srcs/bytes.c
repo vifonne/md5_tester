@@ -6,7 +6,7 @@
 /*   By: vifonne <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/11/15 14:38:44 by vifonne           #+#    #+#             */
-/*   Updated: 2019/11/15 14:39:55 by vifonne          ###   ########.fr       */
+/*   Updated: 2019/11/15 15:19:13 by vifonne          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,6 +41,7 @@ void		print_byte(t_msg *msg)
 	int			size;
 
 	idx = 0;
+	size = 16;
 	if (msg->algo_choosen == 1)
 	{
 		size = sizeof(uint32_t) * 8;
@@ -53,10 +54,7 @@ void		print_byte(t_msg *msg)
 		idx = 0;
 	}
 	else
-	{
-		size = 16;
 		ft_memcpy(to_print, msg->md_buffer.h, size);
-	}
 	while (idx < size)
 	{
 		printf("%02x", to_print[idx]);

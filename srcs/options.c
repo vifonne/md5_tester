@@ -6,7 +6,7 @@
 /*   By: vifonne <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/11/15 15:02:09 by vifonne           #+#    #+#             */
-/*   Updated: 2019/11/15 15:04:10 by vifonne          ###   ########.fr       */
+/*   Updated: 2019/11/15 15:59:33 by vifonne          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,7 +78,8 @@ int		get_opt(int ac, char **av, int algo_choosen)
 			}
 			if (tmp > 0)
 			{
-				fct_table.hash_main(av[arg_idx] + tmp + 1, &fct_table, opt, algo_choosen);
+				fct_table.hash_main(av[arg_idx] + tmp + 1, &fct_table, opt
+					, algo_choosen);
 				opt.s = 0;
 			}
 		}

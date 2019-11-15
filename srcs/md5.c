@@ -6,7 +6,7 @@
 /*   By: vifonne <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/10/10 10:52:55 by vifonne           #+#    #+#             */
-/*   Updated: 2019/11/15 12:36:20 by vifonne          ###   ########.fr       */
+/*   Updated: 2019/11/15 15:25:35 by vifonne          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,10 +29,11 @@ uint32_t	g_sintab[64] = {0xd76aa478, 0xe8c7b756, 0x242070db, 0xc1bdceee,
 	0x6fa87e4f, 0xfe2ce6e0, 0xa3014314, 0x4e0811a1,
 	0xf7537e82, 0xbd3af235, 0x2ad7d2bb, 0xeb86d391};
 
-uint32_t	g_tab[64] = {7, 12, 17, 22, 7, 12, 17, 22, 7, 12, 17, 22, 7, 12, 17,
-	22, 5, 9, 14, 20, 5, 9, 14, 20, 5, 9, 14, 20, 5, 9, 14, 20, 4,
-	11, 16, 23, 4, 11, 16, 23, 4, 11, 16, 23, 4, 11, 16, 23, 6,
-	10, 15, 21, 6, 10, 15, 21, 6, 10, 15, 21, 6, 10, 15, 21};
+uint32_t	g_tab[64] = {7, 12, 17, 22, 7, 12, 17, 22, 7, 12, 17, 22, 7, 12,
+	17, 22, 5, 9, 14, 20, 5, 9, 14, 20, 5, 9, 14, 20, 5,
+	9, 14, 20, 4, 11, 16, 23, 4, 11, 16, 23, 4, 11, 16,
+	23, 4, 11, 16, 23, 6, 10, 15, 21, 6, 10, 15, 21, 6,
+	10, 15, 21, 6, 10, 15, 21};
 
 void		md5_if_forest(t_msg *msg, size_t idx)
 {
@@ -82,7 +83,8 @@ void		md5_loop(uint32_t *buffer, t_msg *msg, t_functions *fct_table)
 	fct_table->add_hash(msg);
 }
 
-void		md5_string(uint8_t *str, ssize_t length, t_msg *msg, t_functions *fct_table)
+void		md5_string(uint8_t *str, ssize_t length, t_msg *msg
+		, t_functions *fct_table)
 {
 	if (msg->internal_buffer_len > 0)
 	{

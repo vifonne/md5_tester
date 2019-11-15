@@ -6,7 +6,7 @@
 /*   By: vifonne <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/10/10 10:53:12 by vifonne           #+#    #+#             */
-/*   Updated: 2019/11/15 15:04:50 by vifonne          ###   ########.fr       */
+/*   Updated: 2019/11/15 15:59:34 by vifonne          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,8 +17,15 @@
 # include <stdlib.h>
 # include <fcntl.h>
 # include <unistd.h>
+
 # define ROTATE_LEFT(x, n) (((x) << (n)) | ((x) >> (32-(n))))
 # define ROTATE_RIGHT(x, n) (((x) >> (n)) | ((x) << (32-(n))))
+
+# define S1(e) (ROTATE_RIGHT(e, 6) ^ ROTATE_RIGHT(e, 11) ^ ROTATE_RIGHT(e, 25))
+# define CH(e, f, g) ((e & f) ^ ((~e) & g))
+# define S0(a) (ROTATE_RIGHT(a, 2) ^ ROTATE_RIGHT(a, 13) ^ ROTATE_RIGHT(a, 22))
+# define MAJ(a, b, c) ((a & b) ^ (a & c) ^ (b & c))
+
 # define MD5_BUFF_SIZE 64
 # define READ_BUFF_SIZE 4096
 
@@ -89,6 +96,7 @@ void			init_hash(t_msg *msg);
 void			add_hash(t_msg *msg);
 void			preparation(t_msg *msg, t_functions *fct_table);
 int				hash_main(char *str, t_functions *fct_table, t_options opt, int algo_choosen);
+int				launch_file_stdin(t_msg *msg, char *str, t_functions *fct_table, t_options opt);
 /*
 **	PARSING
 */
