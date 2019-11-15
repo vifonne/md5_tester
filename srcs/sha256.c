@@ -6,7 +6,7 @@
 /*   By: vifonne <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/10/13 16:02:10 by vifonne           #+#    #+#             */
-/*   Updated: 2019/11/15 12:36:21 by vifonne          ###   ########.fr       */
+/*   Updated: 2019/11/15 13:39:49 by vifonne          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,7 @@ void		sha256_word_extend(uint32_t *buffer)
 	idx = 0;
 	while (idx < 16)
 	{
-		buffer[idx] = __builtin_bswap32(buffer[idx]);
+		buffer[idx] = bswap_32(buffer[idx]);
 		idx++;
 	}
 	while (idx < 64)

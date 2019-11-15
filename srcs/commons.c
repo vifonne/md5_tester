@@ -6,24 +6,26 @@
 /*   By: vifonne <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/11/15 11:35:08 by vifonne           #+#    #+#             */
-/*   Updated: 2019/11/15 12:36:28 by vifonne          ###   ########.fr       */
+/*   Updated: 2019/11/15 14:14:43 by vifonne          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_ssl_md5.h"
 
-void	read_from_fd(int fd, t_msg *msg, t_functions *fct_table)
+void	read_from_fd(int fd, t_msg *msg, t_functions *fct_table, t_options opt)
 {
 	size_t	ret;
 	char	read_buffer[READ_BUFF_SIZE];
 
 	while ((ret = read(fd, read_buffer, READ_BUFF_SIZE)) > 0)
 	{
-		write(1, read_buffer, ret);
+		if (opt.p == 1)
+			write(1, read_buffer, ret);
 		msg->original_len += ret;
 		fct_table->string((uint8_t *)read_buffer, ret, msg, fct_table);
 	}
-	ft_putchar('\n');
+	if (opt.p == 1)
+		ft_putchar('\n');
 	fct_table->preparation(msg, fct_table);
 }
 
@@ -111,7 +113,7 @@ void	preparation(t_msg *msg, t_functions *fct_table)
 	if (msg->algo_choosen == 1)
 	{
 	*(uint64_t *)(msg->internal_buffer + (MD5_BUFF_SIZE - sizeof(uint64_t))) =
-		__builtin_bswap64((uint64_t)(msg->original_len * 8));
+		bswap_64((uint64_t)(msg->original_len * 8));
 	}
 	else if (msg->algo_choosen == 0)
 	{
@@ -161,13 +163,10 @@ int		hash_main(char *str, t_functions *fct_table, t_options opt, int algo_choose
 				return (0);
 			}
 		}
-		fct_table->read_from_fd(fd, msg, fct_table);
+		fct_table->read_from_fd(fd, msg, fct_table, opt);
 		close(fd);
 	}
-	if (algo_choosen == 1)
-		print_byte_256(msg);
-	else
-		print_output(msg, opt);
+	print_output(msg, opt);
 	free(msg);
 	return (1);
 }

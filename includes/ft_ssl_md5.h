@@ -6,7 +6,7 @@
 /*   By: vifonne <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/10/10 10:53:12 by vifonne           #+#    #+#             */
-/*   Updated: 2019/11/15 12:36:30 by vifonne          ###   ########.fr       */
+/*   Updated: 2019/11/15 14:13:46 by vifonne          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,7 +63,7 @@ typedef struct	s_functions
 {
 	int			(*hash_main)(char *str, struct s_functions *fct_table, t_options opt, int algo_choosen);
 	ssize_t		(*basic_string)(uint8_t *str, ssize_t lenbth, t_msg *msg, struct s_functions *fct_table);
-	void		(*read_from_fd)(int fd, t_msg *msg, struct s_functions *fct_table);
+	void		(*read_from_fd)(int fd, t_msg *msg, struct s_functions *fct_table, t_options opt);
 	void		(*init_md_buffer)(t_msg *msg);
 	void		(*init_hash)(t_msg *msg);
 	void		(*add_hash)(t_msg *msg);
@@ -75,7 +75,7 @@ typedef struct	s_functions
 /*
 **	COMMON
 */
-void			read_from_fd(int fd, t_msg *msg, t_functions *fct_table);
+void			read_from_fd(int fd, t_msg *msg, t_functions *fct_table, t_options opt);
 ssize_t			basic_string(uint8_t *str, ssize_t length, t_msg *msg, t_functions *fct_table);
 void			init_md_buffer(t_msg *msg);
 void			init_hash(t_msg *msg);
@@ -103,6 +103,8 @@ void			sha256_loop(uint32_t *buffer, t_msg *msg, t_functions *fct_table);
 /*
 **	UTILS
 */
+uint32_t		bswap_32(uint32_t bytes);
+uint64_t		bswap_64(uint64_t bytes);
 void			print_output(t_msg *msg, t_options opt);
 void			ft_error(int error_code);
 void			print_bits(uint8_t *msg, size_t length);
