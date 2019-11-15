@@ -6,7 +6,7 @@
 /*   By: vifonne <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/10/10 10:53:12 by vifonne           #+#    #+#             */
-/*   Updated: 2019/11/15 12:24:07 by vifonne          ###   ########.fr       */
+/*   Updated: 2019/11/15 12:36:30 by vifonne          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,8 +51,17 @@ typedef struct	s_msg
 	t_hash		hash;
 }				t_msg;
 
+typedef struct	s_options
+{
+	int			p;
+	int			q;
+	int			r;
+	int			s;
+}				t_options;
+
 typedef struct	s_functions
 {
+	int			(*hash_main)(char *str, struct s_functions *fct_table, t_options opt, int algo_choosen);
 	ssize_t		(*basic_string)(uint8_t *str, ssize_t lenbth, t_msg *msg, struct s_functions *fct_table);
 	void		(*read_from_fd)(int fd, t_msg *msg, struct s_functions *fct_table);
 	void		(*init_md_buffer)(t_msg *msg);
@@ -63,15 +72,6 @@ typedef struct	s_functions
 	void		(*loop)(uint32_t *buffer, t_msg *msg, struct s_functions *fct_table);
 }				t_functions;
 
-
-typedef struct	s_options
-{
-	int			p;
-	int			q;
-	int			r;
-	int			s;
-}				t_options;
-
 /*
 **	COMMON
 */
@@ -81,6 +81,7 @@ void			init_md_buffer(t_msg *msg);
 void			init_hash(t_msg *msg);
 void			add_hash(t_msg *msg);
 void			preparation(t_msg *msg, t_functions *fct_table);
+int				hash_main(char *str, t_functions *fct_table, t_options opt, int algo_choosen);
 /*
 **	PARSING
 */
@@ -92,14 +93,12 @@ t_options		parse_options(int ac, char **av);
 */
 void			md5_string(uint8_t *str, ssize_t length, t_msg *msg, t_functions *fct_table);
 void			md5_loop(uint32_t *buffer, t_msg *msg, t_functions *fct_table);
-int				md5(char *str, t_functions *fct_table, t_options opt);
 
 /*
 **	SHA256
 */
 void			sha256_string(uint8_t *str, ssize_t length, t_msg *msg, t_functions *fct_table);
 void			sha256_loop(uint32_t *buffer, t_msg *msg, t_functions *fct_table);
-int				sha256(char *str, t_functions *fct_table, t_options opt);
 
 /*
 **	UTILS

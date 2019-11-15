@@ -6,14 +6,13 @@
 /*   By: vifonne <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/10/10 10:17:48 by vifonne           #+#    #+#             */
-/*   Updated: 2019/11/15 12:24:18 by vifonne          ###   ########.fr       */
+/*   Updated: 2019/11/15 12:36:35 by vifonne          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_ssl_md5.h"
 
 char	*g_algo_name_tab[3] = {"md5", "sha256", 0};
-int		(*g_algo_fct_tab[2]) (char *str, t_functions *fct_table, t_options opt) = {&md5, &sha256};
 
 
 int		algo_finder(char *algo_name)
@@ -41,6 +40,7 @@ t_functions	set_fct_table(int algo_choosen)
 {
 	t_functions		fct_table;
 
+	fct_table.hash_main = hash_main;
 	fct_table.basic_string = basic_string;
 	fct_table.read_from_fd = read_from_fd;
 	fct_table.init_md_buffer = init_md_buffer;
@@ -113,19 +113,18 @@ int		get_opt(int ac, char **av, int algo_choosen)
 			{
 				s_tmp = opt.s;
 				opt.s = 0;
-				g_algo_fct_tab[algo_choosen](NULL, &fct_table, opt);
+				fct_table.hash_main(NULL, &fct_table, opt, algo_choosen);
 				opt.p = 0;
 				opt.s = s_tmp;
-			}
 			if (tmp > 0)
 			{
-				g_algo_fct_tab[algo_choosen](av[arg_idx] + tmp + 1, &fct_table, opt);
+				fct_table.hash_main(av[arg_idx] + tmp + 1, &fct_table, opt, algo_choosen);
 				opt.s = 0;
 			}
 		}
 		else
 		{
-			g_algo_fct_tab[algo_choosen](av[arg_idx], &fct_table, opt);
+			fct_table.hash_main(av[arg_idx], &fct_table, opt, algo_choosen);
 			opt.p = 0;
 			opt.s = 0;
 		}

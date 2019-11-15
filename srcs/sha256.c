@@ -6,7 +6,7 @@
 /*   By: vifonne <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/10/13 16:02:10 by vifonne           #+#    #+#             */
-/*   Updated: 2019/11/15 12:21:22 by vifonne          ###   ########.fr       */
+/*   Updated: 2019/11/15 12:36:21 by vifonne          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -124,44 +124,4 @@ void		sha256_string(uint8_t *str, ssize_t length, t_msg *msg, t_functions *fct_t
 		ft_memcpy(msg->internal_buffer, str, length);
 		msg->internal_buffer_len = length;
 	}
-}
-
-int		sha256(char *str, t_functions *fct_table, t_options opt)
-{
-	int		fd;
-	t_msg	*msg;
-
-	if (!(msg = (t_msg *)ft_memalloc(sizeof(t_msg))))
-		return (0);
-	msg->algo_name = "SHA256";
-	msg->algo_choosen = 1;
-	msg->filename = str;
-	fct_table->init_md_buffer(msg);
-	if (opt.s == 1)
-	{
-		msg->original_len += ft_strlen(str);
-		fct_table->string((uint8_t *)str, (ssize_t)msg->original_len, msg, fct_table);
-		fct_table->preparation(msg, fct_table);
-	}
-	else
-	{
-		if (str == NULL)
-		{
-			fd = 0;
-		}
-		else
-		{
-			fd = open(str, O_RDONLY);
-			if (fd < 0)
-			{
-				free(msg);
-				return (0);
-			}
-		}
-		fct_table->read_from_fd(fd, msg, fct_table);
-		close(fd);
-	}
-	print_byte_256(msg);
-	free(msg);
-	return (1);
 }

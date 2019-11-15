@@ -6,7 +6,7 @@
 /*   By: vifonne <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/11/15 11:35:08 by vifonne           #+#    #+#             */
-/*   Updated: 2019/11/15 12:24:46 by vifonne          ###   ########.fr       */
+/*   Updated: 2019/11/15 12:36:28 by vifonne          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -119,4 +119,55 @@ void	preparation(t_msg *msg, t_functions *fct_table)
 		(uint64_t)(msg->original_len * 8);
 	}
 	fct_table->loop((uint32_t *)msg->internal_buffer, msg, fct_table);
+}
+
+void	fill_algo_name(t_msg *msg)
+{
+	if (msg->algo_choosen == 0)
+		msg->algo_name = "MD5";
+	else if (msg->algo_choosen == 1)
+		msg->algo_name = "SHA256";
+}
+
+int		hash_main(char *str, t_functions *fct_table, t_options opt, int algo_choosen)
+{
+	int		fd;
+	t_msg	*msg;
+
+	if (!(msg = (t_msg *)ft_memalloc(sizeof(t_msg))))
+		return (0);
+	msg->algo_choosen = algo_choosen;
+	fill_algo_name(msg);
+	msg->filename = str;
+	fct_table->init_md_buffer(msg);
+	if (opt.s == 1)
+	{
+		msg->original_len += ft_strlen(str);
+		fct_table->string((uint8_t *)str, (ssize_t)msg->original_len, msg, fct_table);
+		fct_table->preparation(msg, fct_table);
+	}
+	else
+	{
+		if (str == NULL)
+		{
+			fd = 0;
+		}
+		else
+		{
+			fd = open(str, O_RDONLY);
+			if (fd < 0)
+			{
+				free(msg);
+				return (0);
+			}
+		}
+		fct_table->read_from_fd(fd, msg, fct_table);
+		close(fd);
+	}
+	if (algo_choosen == 1)
+		print_byte_256(msg);
+	else
+		print_output(msg, opt);
+	free(msg);
+	return (1);
 }
