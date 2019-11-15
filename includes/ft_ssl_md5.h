@@ -6,7 +6,7 @@
 /*   By: vifonne <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/10/10 10:53:12 by vifonne           #+#    #+#             */
-/*   Updated: 2019/11/15 14:13:46 by vifonne          ###   ########.fr       */
+/*   Updated: 2019/11/15 15:04:50 by vifonne          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,6 +73,13 @@ typedef struct	s_functions
 }				t_functions;
 
 /*
+**	OPTIONS
+*/
+int				no_options(t_options opt);
+int				get_opt(int ac, char **av, int algo_choosen);
+int				parse_opt(char *str, t_options *opt);
+
+/*
 **	COMMON
 */
 void			read_from_fd(int fd, t_msg *msg, t_functions *fct_table, t_options opt);
@@ -103,6 +110,7 @@ void			sha256_loop(uint32_t *buffer, t_msg *msg, t_functions *fct_table);
 /*
 **	UTILS
 */
+t_functions		set_fct_table(int algo_choosen);
 uint32_t		bswap_32(uint32_t bytes);
 uint64_t		bswap_64(uint64_t bytes);
 void			print_output(t_msg *msg, t_options opt);
